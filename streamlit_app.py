@@ -1,6 +1,6 @@
 import streamlit as st
 
-# 1. Orbi'nin Keşif Veri Tabanı
+# Orbi'nin Keşif Veri Tabanı
 LANDMARKS = [
     {"isim": "Piramitler", "kategori": "Arkeoloji", "konum": "Afrika", "tip": "Dış Mekan", "ikonik": "Evet"},
     {"isim": "Eyfel Kulesi", "kategori": "Fotojenik", "konum": "Avrupa", "tip": "Yapı", "ikonik": "Evet"},
@@ -11,7 +11,6 @@ LANDMARKS = [
     {"isim": "Göbeklitepe", "kategori": "Arkeoloji", "konum": "Türkiye", "tip": "Dış Mekan", "ikonik": "Evet"}
 ]
 
-# 2. Oyun Yönetimi
 if 'data' not in st.session_state:
     st.session_state.data = LANDMARKS.copy()
     st.session_state.sorular = ["konum", "kategori", "tip", "ikonik"]
@@ -20,27 +19,35 @@ if 'data' not in st.session_state:
 st.image("orbi_ai.png", width=200)
 st.title("Orbi Discovery 🌍")
 
-if len(st.session_state.data) > 1:
-    attr = st.session_state.sorular[st.session_state.current_q]
-    
-    # Orbi'nin karakteristik yorumu
-    st.write(f"### Orbi Keşifte: '{attr}' hakkında ipucu arıyorum...")
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Evet"):
-            st.session_state.data = [i for i in st.session_state.data if i[attr] == "Evet"]
-            st.session_state.current_q += 1
-            st.rerun()
-    with col2:
-        if st.button("Hayır"):
-            st.session_state.data = [i for i in st.session_state.data if i[attr] != "Evet"]
-            st.session_state.current_q += 1
-            st.rerun()
-else:
+# Hata kontrolü: Eğer listede aday kalmadıysa oyun bitti!
+if len(st.session_state.data) == 0:
+    st.warning("Hımm... Sanırım tarif ettiğin yeri henüz öğrenmemişim! Bana biraz daha bilgi ver.")
+    if st.button("Tekrar Dene 🔄"):
+        st.session_state.data = LANDMARKS.copy()
+        st.session_state.current_q = 0
+        st.rerun()
+
+elif len(st.session_state.data) == 1:
     result = st.session_state.data[0]['isim']
     st.success(f"## Buldum! Aklındaki yer: {result} 🎯")
     if st.button("Yeni Keşif 🔄"):
         st.session_state.data = LANDMARKS.copy()
         st.session_state.current_q = 0
         st.rerun()
+
+else:
+    if st.session_state.current_q < len(st.session_state.sorular):
+        attr = st.session_state.sorular[st.session_state.current_q]
+        st.write(f"### Orbi Keşifte: '{attr}' hakkında ipucu arıyorum...")
+        
+        col1, col2 = st.columns(2)
+        if col1.button("Evet"):
+            st.session_state.data = [i for i in st.session_state.data if i.get(attr) == "Evet"]
+            st.session_state.current_q += 1
+            st.rerun()
+        if col2.button("Hayır"):
+            st.session_state.data = [i for i in st.session_state.data if i.get(attr) != "Evet"]
+            st.session_state.current_q += 1
+            st.rerun()
+    else:
+        st.write("Daha fazla soru kalmadı, sanırım sistemdeki veriler tükendi.")
