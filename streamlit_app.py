@@ -1,6 +1,6 @@
 """
-ORBI DISCOVERY ENGINE (ODE) v2.0
-Düzeltilmiş cevap butonları
+ORBI DISCOVERY ENGINE v3.0
+TIKLANABİLİR BUTONLAR + MOBİL UYUMLU
 """
 
 import streamlit as st
@@ -10,27 +10,29 @@ import math
 from typing import List, Dict, Optional
 
 # ============================================
-# SAYFA YAPILANDIRMASI
+# MOBİL UYUMLU SAYFA YAPILANDIRMASI
 # ============================================
 st.set_page_config(
     page_title="Orbi Discovery",
     page_icon="🌍",
-    layout="wide",
+    layout="centered",  # Mobil dostu
     initial_sidebar_state="collapsed"
 )
 
 # ============================================
-# CSS
+# CSS - MOBİL + TABLET + PC UYUMLU
 # ============================================
 st.markdown("""
 <style>
+    /* ANA TEMA */
     .stApp {
         background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
     }
     
+    /* BAŞLIK */
     .orbi-title {
         color: #00d4ff;
-        font-size: 3em;
+        font-size: 2.5em;
         font-weight: 800;
         text-align: center;
         text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
@@ -40,116 +42,64 @@ st.markdown("""
     .orbi-subtitle {
         color: #8899aa;
         text-align: center;
-        font-size: 1.2em;
-        margin-bottom: 30px;
-    }
-    
-    .orbi-card {
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 15px;
-        padding: 25px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
+        font-size: 1em;
         margin-bottom: 20px;
     }
     
+    /* KART */
+    .orbi-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+        padding: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        margin-bottom: 15px;
+    }
+    
+    /* ORBI KONUŞMASI */
     .orbi-speech {
         background: linear-gradient(135deg, #1a3a5c, #0d1f3c);
         border-radius: 20px;
-        padding: 20px 25px;
+        padding: 15px 20px;
         border-left: 5px solid #00d4ff;
         color: #e0e8f0;
-        font-size: 1.1em;
-        margin: 20px 0;
+        font-size: 1em;
+        margin: 15px 0;
         box-shadow: 0 4px 15px rgba(0, 212, 255, 0.1);
     }
     
     .orbi-speech .orbi-name {
         color: #00d4ff;
         font-weight: bold;
-        font-size: 1.2em;
+        font-size: 1.1em;
     }
     
-    /* CEVAP BUTONLARI */
-    .answer-container {
-        display: flex;
-        gap: 15px;
-        margin: 20px 0;
-    }
-    
-    .answer-btn {
-        flex: 1;
-        padding: 18px 25px;
-        border-radius: 15px;
-        border: 2px solid rgba(255, 255, 255, 0.1);
-        background: rgba(255, 255, 255, 0.03);
-        color: #e0e8f0;
-        font-size: 1.2em;
-        font-weight: 600;
-        text-align: center;
-        transition: all 0.3s ease;
-        cursor: pointer;
-    }
-    
-    .answer-btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(0, 212, 255, 0.2);
-    }
-    
-    .answer-btn-yes {
-        border-color: #00ff88;
-    }
-    
-    .answer-btn-yes:hover {
-        background: rgba(0, 255, 136, 0.15);
-        border-color: #00ff88;
-        box-shadow: 0 8px 25px rgba(0, 255, 136, 0.3);
-    }
-    
-    .answer-btn-no {
-        border-color: #ff4444;
-    }
-    
-    .answer-btn-no:hover {
-        background: rgba(255, 68, 68, 0.15);
-        border-color: #ff4444;
-        box-shadow: 0 8px 25px rgba(255, 68, 68, 0.3);
-    }
-    
-    .answer-btn-idk {
-        border-color: #ffaa00;
-    }
-    
-    .answer-btn-idk:hover {
-        background: rgba(255, 170, 0, 0.15);
-        border-color: #ffaa00;
-        box-shadow: 0 8px 25px rgba(255, 170, 0, 0.3);
-    }
-    
+    /* METRİK KARTLARI */
     .metric-card {
         background: rgba(255, 255, 255, 0.05);
         border-radius: 10px;
-        padding: 15px;
+        padding: 12px;
         text-align: center;
         border: 1px solid rgba(255, 255, 255, 0.05);
     }
     
     .metric-value {
         color: #00d4ff;
-        font-size: 2em;
+        font-size: 1.8em;
         font-weight: bold;
     }
     
     .metric-label {
         color: #8899aa;
-        font-size: 0.9em;
+        font-size: 0.8em;
     }
     
+    /* SONUÇ */
     .result-found {
         background: linear-gradient(135deg, #00d4ff22, #0088cc22);
         border: 2px solid #00d4ff;
         border-radius: 20px;
-        padding: 30px;
+        padding: 25px;
         text-align: center;
         animation: pulse 2s infinite;
     }
@@ -164,31 +114,100 @@ st.markdown("""
         background: linear-gradient(135deg, #ff444422, #cc000022);
         border: 2px solid #ff4444;
         border-radius: 20px;
-        padding: 30px;
+        padding: 25px;
         text-align: center;
     }
     
     .footer {
         color: #445566;
         text-align: center;
-        padding: 20px;
-        font-size: 0.8em;
+        padding: 15px;
+        font-size: 0.7em;
         border-top: 1px solid rgba(255, 255, 255, 0.05);
-        margin-top: 40px;
+        margin-top: 30px;
     }
     
-    /* Streamlit butonlarını gizle */
+    /* ============================================
+       BUTONLAR - TIKLANABİLİR + MOBİL UYUMLU
+       ============================================ */
     .stButton > button {
-        visibility: hidden;
-        height: 0;
-        padding: 0;
-        margin: 0;
+        background: linear-gradient(135deg, #00d4ff, #0088cc);
+        color: white;
+        border: none;
+        border-radius: 15px;
+        padding: 15px 10px;
+        font-weight: 700;
+        font-size: 1.1em;
+        transition: all 0.3s ease;
+        width: 100%;
+        min-height: 55px;
+        box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+        cursor: pointer !important;
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+        background: linear-gradient(135deg, #00e5ff, #0099dd);
+    }
+    
+    .stButton > button:active {
+        transform: scale(0.95);
+    }
+    
+    /* Telefon için butonlar */
+    @media (max-width: 480px) {
+        .stButton > button {
+            min-height: 50px;
+            padding: 12px 5px;
+            font-size: 0.95em;
+            border-radius: 12px;
+        }
+        
+        .orbi-title {
+            font-size: 1.8em !important;
+        }
+        
+        .metric-value {
+            font-size: 1.4em !important;
+        }
+        
+        .orbi-card {
+            padding: 15px;
+        }
+        
+        .orbi-speech {
+            padding: 12px 15px;
+            font-size: 0.9em;
+        }
+    }
+    
+    /* Tablet için */
+    @media (min-width: 481px) and (max-width: 768px) {
+        .stButton > button {
+            min-height: 60px;
+            padding: 15px 10px;
+            font-size: 1.05em;
+        }
+        
+        .orbi-title {
+            font-size: 2.2em !important;
+        }
+    }
+    
+    /* Bilgisayar için */
+    @media (min-width: 769px) {
+        .stButton > button {
+            min-height: 60px;
+            padding: 18px 15px;
+            font-size: 1.15em;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
 
 # ============================================
-# VERİTABANI
+# VERİTABANI (30+ yer)
 # ============================================
 LANDMARKS = [
     {"id": 1, "name": "Ayasofya", "continent": "Asia", "country": "Turkey", "city": "İstanbul", "category": "religious", "is_natural": False, "is_man_made": True, "is_unesco": True, "is_ancient": True, "is_temple": False, "is_museum": True, "is_mosque": True, "is_church": True, "is_mountain": False, "is_island": False, "is_water": False, "is_desert": False, "is_volcano": False, "is_cave": False, "has_tourists": True, "has_entry_fee": True, "is_underground": False, "night_light": True, "height_meters": 55},
@@ -241,12 +260,10 @@ ORBI_COMMENTS = {
 
 def get_all_questions() -> List[Dict]:
     questions = []
-    
     static_questions = [
         {"id": "continent", "text": "Hangi kıtada?", "type": "categorical", "options": ["Asia", "Europe", "Africa", "North America", "South America", "Australia", "Antarctica"]},
         {"id": "category", "text": "Kategorisi ne?", "type": "categorical", "options": ["natural", "archaeological", "religious", "modern", "historical"]},
     ]
-    
     boolean_props = {
         "is_natural": "Doğal oluşum mu?",
         "is_man_made": "İnsan yapımı mı?",
@@ -267,10 +284,8 @@ def get_all_questions() -> List[Dict]:
         "is_underground": "Yer altında mı?",
         "night_light": "Gece ışıklandırılıyor mu?"
     }
-    
     for prop, text in boolean_props.items():
         questions.append({"id": prop, "text": text, "type": "boolean"})
-    
     return questions
 
 def calculate_information_gain(landmarks: List[Dict], question: Dict) -> float:
@@ -410,36 +425,32 @@ def main():
     init_session_state()
     
     # HEADER
-    col1, col2, col3 = st.columns([1, 6, 1])
-    with col2:
-        st.markdown('<h1 class="orbi-title">🌍 ORBI DISCOVERY</h1>', unsafe_allow_html=True)
-        st.markdown('<p class="orbi-subtitle">"Bir yer düşün, ben bulayım!"</p>', unsafe_allow_html=True)
+    st.markdown('<h1 class="orbi-title">🌍 ORBI DISCOVERY</h1>', unsafe_allow_html=True)
+    st.markdown('<p class="orbi-subtitle">"Bir yer düşün, ben bulayım!"</p>', unsafe_allow_html=True)
     
-    # SIDEBAR
+    # SIDEBAR (Mobilde gizlenebilir)
     with st.sidebar:
         st.markdown("### 📊 İstatistikler")
         if st.session_state.total_games > 0:
-            col1, col2 = st.columns(2)
-            with col1:
+            c1, c2 = st.columns(2)
+            with c1:
                 st.metric("Toplam Oyun", st.session_state.total_games)
-            with col2:
+            with c2:
                 win_rate = int((st.session_state.total_wins / st.session_state.total_games) * 100)
                 st.metric("Kazanma Oranı", f"%{win_rate}")
         st.markdown("---")
-        st.markdown("### 🎯 Zorluk Seviyesi")
+        st.markdown("### 🎯 Zorluk")
         st.selectbox("Seviye", ["Bronz 🥉", "Gümüş 🥈", "Altın 🥇", "Elmas 💎"], key="difficulty")
         st.markdown("---")
-        if st.button("🔄 Yeni Oyun"):
+        if st.button("🔄 Yeni Oyun", use_container_width=True):
             reset_game()
             st.rerun()
         st.markdown("---")
-        st.markdown("### 📚 Veritabanı")
-        st.info(f"Toplam {len(st.session_state.landmarks)} yer biliniyor.")
-        st.markdown("---")
-        st.markdown("### 💡 İpuçları")
+        st.markdown(f"### 📚 Veritabanı")
+        st.info(f"{len(st.session_state.landmarks)} yer")
         if st.session_state.question_count > 0:
-            st.success(f"{st.session_state.question_count} soru soruldu.")
-            st.info(f"{len(st.session_state.candidates)} aday kaldı.")
+            st.success(f"{st.session_state.question_count} soru")
+            st.info(f"{len(st.session_state.candidates)} aday")
     
     # ORBI KONUŞMASI
     if st.session_state.last_comment:
@@ -449,58 +460,47 @@ def main():
         </div>
         """, unsafe_allow_html=True)
     
-    # BAŞLANGIÇ
+    # ========== BAŞLANGIÇ ==========
     if not st.session_state.game_started:
         st.markdown("""
         <div class="orbi-card" style="text-align: center;">
             <h2 style="color: #00d4ff;">🗺️ Dünyayı Keşfet!</h2>
-            <p style="color: #8899aa; font-size: 1.1em;">
-                Aklından bir yer tut. Orbi sana sorular sorarak o yeri bulmaya çalışsın!
-            </p>
-            <br>
-            <p style="color: #667788;">
-                🌍 30+ ünlü yer<br>
-                🎯 Gerçek Akinator mantığı<br>
-                🧠 Information Gain algoritması<br>
-                🏆 Puan sistemi
+            <p style="color: #8899aa;">Aklından bir yer tut, Orbi bulsun!</p>
+            <p style="color: #667788; font-size: 0.9em;">
+                🌍 30+ yer • 🎯 Akinator • 🧠 Information Gain
             </p>
         </div>
         """, unsafe_allow_html=True)
-        if st.button("🚀 Hadi Başlayalım!", use_container_width=True):
+        if st.button("🚀 Başla!", use_container_width=True):
             reset_game()
             st.rerun()
-        with st.expander("📌 Örnek Yerler"):
-            sample_places = ["Ayasofya", "Pamukkale", "Kapadokya", "Göbeklitepe", "Burj Khalifa", "Eyfel Kulesi", "Piramitler", "Taj Mahal"]
-            cols = st.columns(4)
-            for i, place in enumerate(sample_places):
-                cols[i % 4].markdown(f"- {place}")
     
-    # OYUN DÖNGÜSÜ
+    # ========== OYUN ==========
     elif not st.session_state.game_over:
         # METRİKLER
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
+        c1, c2, c3, c4 = st.columns(4)
+        with c1:
             st.markdown(f"""
             <div class="metric-card">
                 <div class="metric-value">{len(st.session_state.candidates)}</div>
-                <div class="metric-label">🏛️ Aday Yer</div>
+                <div class="metric-label">🏛️ Aday</div>
             </div>
             """, unsafe_allow_html=True)
-        with col2:
+        with c2:
             st.markdown(f"""
             <div class="metric-card">
                 <div class="metric-value">{st.session_state.question_count}</div>
                 <div class="metric-label">❓ Soru</div>
             </div>
             """, unsafe_allow_html=True)
-        with col3:
+        with c3:
             st.markdown(f"""
             <div class="metric-card">
                 <div class="metric-value">{st.session_state.score}</div>
                 <div class="metric-label">⭐ Puan</div>
             </div>
             """, unsafe_allow_html=True)
-        with col4:
+        with c4:
             progress = min(len(st.session_state.asked_questions) / 15, 1.0)
             st.markdown(f"""
             <div class="metric-card">
@@ -510,7 +510,7 @@ def main():
             """, unsafe_allow_html=True)
         st.progress(progress)
         
-        # SORU SOR
+        # SORU SEÇ
         if st.session_state.current_question is None:
             best_q = get_best_question(st.session_state.candidates, st.session_state.asked_questions)
             if best_q:
@@ -527,68 +527,47 @@ def main():
                     st.session_state.total_games += 1
                 st.rerun()
         
-        # ============================================
-        # 🔥 SORUYU GÖSTER - CEVAP BUTONLARI DÜZELTİLDİ
-        # ============================================
+        # ========== SORU GÖSTER + CEVAP BUTONLARI ==========
         if st.session_state.current_question:
             q = st.session_state.current_question
             
             st.markdown(f"""
             <div class="orbi-card">
                 <h3 style="color: #00d4ff;">❓ Soru {st.session_state.question_count + 1}</h3>
-                <p style="color: #e0e8f0; font-size: 1.3em;">{q['text']}</p>
+                <p style="color: #e0e8f0; font-size: 1.2em;">{q['text']}</p>
             </div>
             """, unsafe_allow_html=True)
             
-            # === CEVAP BUTONLARI ===
+            # ===== CEVAP BUTONLARI =====
             if q["type"] == "boolean":
-                col1, col2, col3 = st.columns(3)
-                
-                with col1:
-                    st.markdown("""
-                    <div style="text-align: center;">
-                        <div class="answer-btn answer-btn-yes">✅ Evet</div>
-                    </div>
-                    """, unsafe_allow_html=True)
-                    if st.button("Evet", key=f"yes_{q['id']}", use_container_width=True):
+                c1, c2, c3 = st.columns(3)
+                with c1:
+                    if st.button("✅ Evet", key=f"yes_{q['id']}_{st.session_state.question_count}", use_container_width=True):
                         st.session_state.temp_answer = "Evet"
                         st.session_state.answer_submitted = True
                         st.rerun()
-                
-                with col2:
-                    st.markdown("""
-                    <div style="text-align: center;">
-                        <div class="answer-btn answer-btn-no">❌ Hayır</div>
-                    </div>
-                    """, unsafe_allow_html=True)
-                    if st.button("Hayır", key=f"no_{q['id']}", use_container_width=True):
+                with c2:
+                    if st.button("❌ Hayır", key=f"no_{q['id']}_{st.session_state.question_count}", use_container_width=True):
                         st.session_state.temp_answer = "Hayır"
                         st.session_state.answer_submitted = True
                         st.rerun()
-                
-                with col3:
-                    st.markdown("""
-                    <div style="text-align: center;">
-                        <div class="answer-btn answer-btn-idk">🤷 Bilmiyorum</div>
-                    </div>
-                    """, unsafe_allow_html=True)
-                    if st.button("Bilmiyorum", key=f"idk_{q['id']}", use_container_width=True):
+                with c3:
+                    if st.button("🤷 Bilmiyorum", key=f"idk_{q['id']}_{st.session_state.question_count}", use_container_width=True):
                         st.session_state.temp_answer = "Bilmiyorum"
                         st.session_state.answer_submitted = True
                         st.rerun()
-            
             else:
                 options = ["Bilmiyorum"] + q["options"]
-                answer = st.selectbox("Cevabını seç:", options, key=f"answer_{q['id']}")
-                if st.button("✅ Cevabı Gönder", key="submit_answer", use_container_width=True):
+                answer = st.selectbox("Cevabını seç:", options, key=f"select_{q['id']}")
+                if st.button("✅ Cevabı Gönder", key="submit_ans", use_container_width=True):
                     st.session_state.temp_answer = answer
                     st.session_state.answer_submitted = True
                     st.rerun()
             
-            # === CEVAP İŞLEME ===
+            # ===== CEVAP İŞLE =====
             if st.session_state.answer_submitted:
                 answer = st.session_state.temp_answer
-                before_count = len(st.session_state.candidates)
+                before = len(st.session_state.candidates)
                 
                 if q["type"] == "boolean":
                     if answer != "Bilmiyorum":
@@ -597,26 +576,25 @@ def main():
                     if answer != "Bilmiyorum":
                         st.session_state.candidates = filter_landmarks(st.session_state.candidates, q, answer)
                 
-                after_count = len(st.session_state.candidates)
-                
-                if after_count < before_count:
-                    st.session_state.score += calculate_score(st.session_state.question_count, before_count, after_count)
+                after = len(st.session_state.candidates)
+                if after < before:
+                    st.session_state.score += calculate_score(st.session_state.question_count, before, after)
                 
                 st.session_state.asked_questions.append(q["id"])
                 st.session_state.question_count += 1
                 
-                if after_count == 1:
+                if after == 1:
                     st.session_state.found_landmark = st.session_state.candidates[0]
                     st.session_state.game_over = True
                     st.session_state.total_games += 1
                     st.session_state.total_wins += 1
                     st.session_state.last_comment = get_orbi_comment(1, True)
-                elif after_count == 0:
+                elif after == 0:
                     st.session_state.game_over = True
                     st.session_state.total_games += 1
                     st.session_state.last_comment = random.choice(ORBI_COMMENTS["not_found"])
                 else:
-                    st.session_state.last_comment = get_orbi_comment(after_count)
+                    st.session_state.last_comment = get_orbi_comment(after)
                 
                 st.session_state.current_question = None
                 st.session_state.answer_submitted = False
@@ -626,133 +604,102 @@ def main():
         # UYARI
         if len(st.session_state.candidates) <= 3 and not st.session_state.game_over:
             st.warning(f"⚠️ Sadece {len(st.session_state.candidates)} aday kaldı!")
-            st.info("🔍 Orbi çok yaklaştı!")
     
-    # OYUN SONU
+    # ========== OYUN SONU ==========
     else:
         if st.session_state.found_landmark:
-            landmark = st.session_state.found_landmark
+            lm = st.session_state.found_landmark
             st.markdown(f"""
             <div class="result-found">
                 <h1 style="color: #00d4ff;">🎉 {random.choice(['BULDUM!', 'SENİ YAKALADIM!', 'İŞTE BURADA!'])}</h1>
-                <h2 style="color: white; font-size: 2.5em;">📍 {landmark['name']}</h2>
-                <p style="color: #8899aa;">
-                    🇺🇸 {landmark['country']} • {landmark['city']} • {landmark['continent']}
-                </p>
-                <p style="color: #e0e8f0; font-size: 1.1em;">
-                    📂 Kategori: {landmark['category']}
-                </p>
+                <h2 style="color: white; font-size: 2.2em;">📍 {lm['name']}</h2>
+                <p style="color: #8899aa;">{lm['country']} • {lm['city']} • {lm['continent']}</p>
+                <p style="color: #e0e8f0;">📂 {lm['category']}</p>
             </div>
             """, unsafe_allow_html=True)
             
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.markdown(f"""
-                <div class="metric-card">
-                    <div style="font-size: 2em;">{len(st.session_state.asked_questions)}</div>
-                    <div class="metric-label">Soru</div>
-                </div>
-                """, unsafe_allow_html=True)
-            with col2:
-                st.markdown(f"""
-                <div class="metric-card">
-                    <div style="font-size: 2em;">{st.session_state.score}</div>
-                    <div class="metric-label">Puan</div>
-                </div>
-                """, unsafe_allow_html=True)
-            with col3:
-                st.markdown(f"""
-                <div class="metric-card">
-                    <div style="font-size: 2em;">✅</div>
-                    <div class="metric-label">Kazanıldı!</div>
-                </div>
-                """, unsafe_allow_html=True)
+            c1, c2, c3 = st.columns(3)
+            with c1:
+                st.metric("Soru", len(st.session_state.asked_questions))
+            with c2:
+                st.metric("Puan", st.session_state.score)
+            with c3:
+                st.metric("Durum", "✅ Kazanıldı!")
         else:
             st.markdown("""
             <div class="result-not-found">
                 <h1 style="color: #ff4444;">😢 Bilemedim...</h1>
-                <p style="color: #e0e8f0;">Bu yer benim veritabanımda yok.</p>
+                <p style="color: #e0e8f0;">Bu yer veritabanımda yok.</p>
             </div>
             """, unsafe_allow_html=True)
         
-        # ÖĞRENME MODU
+        # ÖĞRENME
         if not st.session_state.found_landmark and not st.session_state.learning_mode:
             if st.button("📚 Bu Yeri Öğret!", use_container_width=True):
                 st.session_state.learning_mode = True
                 st.rerun()
         
         if st.session_state.learning_mode:
-            st.markdown("""
-            <div class="orbi-card">
-                <h3 style="color: #00d4ff;">📚 Yeni Yer Öğret</h3>
-                <p style="color: #8899aa;">Bu yeri veritabanına ekleyelim!</p>
-            </div>
-            """, unsafe_allow_html=True)
-            with st.form("learning_form"):
+            with st.form("learn"):
                 col1, col2 = st.columns(2)
                 with col1:
                     name = st.text_input("📍 Yer Adı")
                     country = st.text_input("🇺🇸 Ülke")
                     city = st.text_input("🏙️ Şehir")
-                    continent = st.selectbox("🌍 Kıta", ["Asia", "Europe", "Africa", "North America", "South America", "Australia", "Antarctica"])
                 with col2:
                     category = st.selectbox("📂 Kategori", ["natural", "archaeological", "religious", "modern", "historical"])
-                    is_unesco = st.checkbox("UNESCO listesinde")
-                    is_natural = st.checkbox("Doğal oluşum")
-                    is_man_made = st.checkbox("İnsan yapımı")
-                    has_tourists = st.checkbox("Turistik")
-                submitted = st.form_submit_button("💾 Kaydet")
-                if submitted and name and country:
-                    new_landmark = {
-                        "id": len(st.session_state.landmarks) + 1,
-                        "name": name,
-                        "continent": continent,
-                        "country": country,
-                        "city": city or "Bilinmiyor",
-                        "category": category,
-                        "is_natural": is_natural,
-                        "is_man_made": is_man_made,
-                        "is_unesco": is_unesco,
-                        "has_tourists": has_tourists,
-                        "is_ancient": False,
-                        "is_temple": False,
-                        "is_museum": False,
-                        "is_mosque": False,
-                        "is_church": False,
-                        "is_mountain": False,
-                        "is_island": False,
-                        "is_water": False,
-                        "is_desert": False,
-                        "is_volcano": False,
-                        "is_cave": False,
-                        "has_entry_fee": False,
-                        "is_underground": False,
-                        "night_light": False,
-                        "height_meters": 0
-                    }
-                    st.session_state.landmarks.append(new_landmark)
-                    st.success(f"✅ {name} veritabanına eklendi!")
-                    st.session_state.learning_mode = False
-                    time.sleep(1)
-                    reset_game()
-                    st.rerun()
+                    is_unesco = st.checkbox("UNESCO")
+                    is_natural = st.checkbox("Doğal")
+                if st.form_submit_button("💾 Kaydet"):
+                    if name and country:
+                        new = {
+                            "id": len(st.session_state.landmarks) + 1,
+                            "name": name,
+                            "continent": "Asia",
+                            "country": country,
+                            "city": city or "Bilinmiyor",
+                            "category": category,
+                            "is_natural": is_natural,
+                            "is_man_made": not is_natural,
+                            "is_unesco": is_unesco,
+                            "has_tourists": True,
+                            "has_entry_fee": False,
+                            "is_ancient": False,
+                            "is_temple": False,
+                            "is_museum": False,
+                            "is_mosque": False,
+                            "is_church": False,
+                            "is_mountain": False,
+                            "is_island": False,
+                            "is_water": False,
+                            "is_desert": False,
+                            "is_volcano": False,
+                            "is_cave": False,
+                            "is_underground": False,
+                            "night_light": False,
+                            "height_meters": 0
+                        }
+                        st.session_state.landmarks.append(new)
+                        st.success(f"✅ {name} eklendi!")
+                        st.session_state.learning_mode = False
+                        time.sleep(0.5)
+                        reset_game()
+                        st.rerun()
         
-        # TEKRAR OYNA
-        col1, col2 = st.columns(2)
-        with col1:
+        # TEKRAR
+        c1, c2 = st.columns(2)
+        with c1:
             if st.button("🔄 Yeni Oyun", use_container_width=True):
                 reset_game()
                 st.rerun()
-        with col2:
+        with c2:
             if st.button("📊 Sıralama", use_container_width=True):
-                st.info("🏆 Dünya sıralaması yakında geliyor!")
+                st.info("🏆 Sıralama yakında!")
     
     # FOOTER
     st.markdown(f"""
     <div class="footer">
-        <p>🌍 ORBI DISCOVERY ENGINE v2.0</p>
-        <p>🧠 {len(st.session_state.landmarks)} yer • {st.session_state.total_games} oyun • %{int((st.session_state.total_wins/max(st.session_state.total_games,1))*100)} kazanma</p>
-        <p>🔍 Akinator mantığı • Information Gain • Keşfet ve Öğren</p>
+        🌍 ORBI v3.0 • {len(st.session_state.landmarks)} yer • {st.session_state.total_games} oyun • %{int((st.session_state.total_wins/max(st.session_state.total_games,1))*100)} kazanma
     </div>
     """, unsafe_allow_html=True)
 
