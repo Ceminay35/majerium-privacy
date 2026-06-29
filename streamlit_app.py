@@ -13,7 +13,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- 2. VERİTABANI (ODE Engine v1.4) ---
+# --- 2. VERİTABANI ---
 @st.cache_data
 def get_data():
     return pd.DataFrame([
@@ -34,7 +34,9 @@ if 'df' not in st.session_state:
 if os.path.exists("orbi_ai.png"):
     st.image(Image.open("orbi_ai.png"), width=120)
 
-st.title("ODE - Orbi Discovery Engine v1.4")
+st.title("ODE v1.5")
+# Kalan aday sayısını buraya sabitliyoruz
+st.metric("Kalan Aday Sayısı", len(st.session_state.df))
 st.write("---")
 
 # --- 5. OYUN MOTORU ---
@@ -60,14 +62,16 @@ if len(df) > 1 and q:
         st.session_state.asked.append(q)
         st.rerun()
 
-    # --- 6. PROFESYONEL ÖZELLİKLER ---
-    with st.expander("📝 Soru-Cevap Geçmişi"):
-        for q_text, ans in st.session_state.history:
-            st.write(f"- {q_text}: **{ans}**")
-
 elif len(df) == 1:
     st.success(f"## 🎯 Buldum! Aklındaki yer: **{df.iloc[0]['isim']}**")
     if st.button("🔄 Yeni Keşif"):
+        st.session_state.df = get_data()
+        st.session_state.asked = []
+        st.session_state.history = []
+        st.rerun()
+else:
+    st.error("🚨 Hımm, bu yer radarımdaki seçeneklerle eşleşmiyor. Öğretmek ister misin?")
+    if st.button("Baştan Başla"):
         st.session_state.df = get_data()
         st.session_state.asked = []
         st.session_state.history = []
